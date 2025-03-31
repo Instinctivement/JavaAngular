@@ -1,14 +1,33 @@
 services:
   springboot:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.app
     ports:
       - "8080:8080"
     depends_on:
       - mysql
+      - phpmyadmin
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mydb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ./src:/app/src
+      - ./pom.xml:/app/pom.xml
+    depends_on:
+      - mysql
+      - phpmyadmin
+    environment:
+      - SPRING_TEST_DATASOURCE_URL=jdbc:mysql://mysql:3306/testdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_PROFILES_ACTIVE=test
 
   mysql:
     image: mysql:8.0
@@ -22,6 +41,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
+    platform: linux/amd64
     ports:
       - "8081:80"
     environment:

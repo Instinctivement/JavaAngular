@@ -2,8 +2,12 @@
 FROM maven:3.8.4-openjdk-17 AS build
 WORKDIR /app
 
-# Copier le fichier pom.xml puis télécharger les dépendances
+# Copier le fichier pom.xml et le wrapper Maven
 COPY pom.xml .
+COPY mvnw .
+COPY .mvn/ .mvn/
+
+# Télécharger les dépendances Maven
 RUN mvn dependency:go-offline -B
 
 # Copier le code source et compiler l’application
